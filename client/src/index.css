@@ -92,28 +92,18 @@
   animation: slideIn 0.3s ease-out;
 }
 
-/* Mobile specific styles */
-@media (max-width: 768px) {
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  
-  /* Touch-friendly tap targets */
-  button, [role="button"] {
-    min-height: 44px;
-    min-width: 44px;
-  }
-  
-  /* Prevent zoom on input focus */
-  input, select, textarea {
-    font-size: 16px;
-  }
-  
-  /* Smooth scrolling for mobile */
-  * {
-    -webkit-overflow-scrolling: touch;
-  }
+/* Remove black border from focused inputs */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: rgb(59 130 246) !important; /* blue-500 */
 }
+
+/* Remove focus ring from all elements */
+*:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+

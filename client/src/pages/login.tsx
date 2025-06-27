@@ -22,8 +22,8 @@ export default function Login({ onLogin }: LoginProps) {
     mutationFn: async ({ email, username, fullname, password, isLogin }: { email: string; username: string; fullname: string; password: string; isLogin: boolean }) => {
       const body = isLogin 
         ? { email, password }
-        : { email, username, fullname, password };
-        
+        : { email, username: "", fullname, password };
+
       const response = await fetch(`/api/auth/${isLogin ? 'login' : 'register'}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -57,8 +57,8 @@ export default function Login({ onLogin }: LoginProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
-    if (!isLogin && (!username || !fullname)) return;
-    authMutation.mutate({ email, username, fullname, password, isLogin });
+    if (!isLogin && (!fullname)) return;
+    authMutation.mutate({ email, username:"", fullname, password, isLogin });
   };
 
   return (
@@ -112,17 +112,7 @@ export default function Login({ onLogin }: LoginProps) {
                     required
                   />
                 </div>
-                <div className="relative group">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
-                  <Input
-                    type="text"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="pl-11 h-12 border-2 border-gray-200 focus:border-blue-500 rounded-xl transition-all duration-200 bg-white/50"
-                    required
-                  />
-                </div>
+                
               </>
             )}
             

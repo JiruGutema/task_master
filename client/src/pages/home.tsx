@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import { Search, Plus, ListTodo, Download, Upload, Edit, Trash2, Calendar, Clock, GripVertical, Menu, X } from "lucide-react";
+import { Search, Plus, ListTodo, Download, Upload, Edit, Trash2, Calendar, Clock, GripVertical } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,7 +44,7 @@ export default function Home({ user, onLogout }: HomeProps) {
   const [deleteItem, setDeleteItem] = useState<{ type: 'category' | 'task', id: number, name: string } | null>(null);
   const [showTaskDetail, setShowTaskDetail] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
 
   const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
@@ -223,178 +223,15 @@ export default function Home({ user, onLogout }: HomeProps) {
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className="h-screen bg-gray-50">
-        {/* Mobile Layout */}
-        <div className="md:hidden h-full flex flex-col">
-          {/* Mobile Header */}
-          <div className="bg-white shadow-sm border-b border-gray-200 p-4 flex items-center justify-between">
-            <div className="flex items-center">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsMobileSidebarOpen(true)}
-                className="mr-3"
-              >
-                <Menu size={20} />
-              </Button>
-              <h1 className="text-lg font-bold text-gray-900 flex items-center">
-                <ListTodo className="text-blue-500 mr-2" size={20} />
-                TaskFlow
-              </h1>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-600">Hi, {user.fullname}</span>
-              <Button size="sm" onClick={handleAddTask}>
-                <Plus size={16} />
-              </Button>
-            </div>
-          </div>
-
-          {/* Mobile Sidebar Overlay */}
-          {isMobileSidebarOpen && (
-            <div className="fixed inset-0 z-50 bg-black bg-opacity-50" onClick={() => setIsMobileSidebarOpen(false)}>
-              <div className="w-80 h-full bg-white shadow-lg flex flex-col" onClick={(e) => e.stopPropagation()}>
-                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">Categories</h2>
-                  <Button variant="ghost" size="sm" onClick={() => setIsMobileSidebarOpen(false)}>
-                    <X size={20} />
-                  </Button>
-                </div>
-                <div className="flex-1 overflow-y-auto p-4">
-                  <Droppable droppableId="categories-mobile" type="category">
-                    {(provided) => (
-                      <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-3">
-                        {categories.map((category, index) => {
-                          const categoryTasks = tasks.filter(t => t.categoryId === category.id);
-                          const isSelected = selectedCategoryId === category.id;
-                          return (
-                            <div
-                              key={category.id}
-                              className={`p-3 rounded-lg cursor-pointer ${
-                                isSelected ? 'bg-blue-50 border-blue-200 border' : 'bg-gray-50'
-                              }`}
-                              onClick={() => {
-                                handleCategoryClick(category.id);
-                                setIsMobileSidebarOpen(false);
-                              }}
-                            >
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center">
-                                  <div className={`w-3 h-3 rounded-full mr-3 ${colorMap[category.color as keyof typeof colorMap] || 'bg-gray-500'}`} />
-                                  <span className="font-medium text-gray-800">{category.name}</span>
-                                  <Badge variant="secondary" className="ml-2">
-                                    {categoryTasks.length}
-                                  </Badge>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Mobile Main Content */}
-          <div className="flex-1 overflow-y-auto p-4">
-            <div className="mb-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                <Input
-                  type="text"
-                  placeholder="Search tasks..."
-                  className="pl-10"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
-            
-            {tasksLoading ? (
-              <div>Loading tasks...</div>
-            ) : tasks.length === 0 ? (
-              <div className="text-center py-12">
-                <ListTodo className="text-gray-300 mx-auto mb-4" size={48} />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks yet</h3>
-                <p className="text-gray-500 mb-4">Get started by creating your first task</p>
-                <Button onClick={handleAddTask}>
-                  <Plus size={16} className="mr-2" />
-                  Add Your First Task
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {tasks.map((task) => {
-                  const taskCategory = categories.find(c => c.id === task.categoryId);
-                  return (
-                    <Card key={task.id} className={`transition-all hover:shadow-md cursor-pointer ${task.completed ? 'opacity-75' : ''}`} onClick={() => handleTaskClick(task)}>
-                      <CardContent className="p-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-start space-x-3 flex-1">
-                            <Checkbox
-                              checked={task.completed}
-                              onCheckedChange={(checked) => {
-                                toggleTaskCompletion({ taskId: task.id, completed: !!checked });
-                              }}
-                              onClick={(e) => e.stopPropagation()}
-                              className="mt-1"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <h3 className={`font-semibold text-gray-900 mb-1 text-sm ${task.completed ? 'line-through' : ''}`}>
-                                {task.title}
-                              </h3>
-                              <p className="text-gray-600 text-xs mb-2 line-clamp-2">{task.description}</p>
-                              <div className="flex items-center space-x-2 text-xs text-gray-500">
-                                <Badge className={`text-xs ${priorityColors[task.priority as keyof typeof priorityColors]}`}>
-                                  {task.priority}
-                                </Badge>
-                                {task.dueDate && (
-                                  <span className="flex items-center">
-                                    <Calendar size={10} className="mr-1" />
-                                    {new Date(task.dueDate).toLocaleDateString()}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex space-x-1 ml-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditTask(task);
-                              }}
-                            >
-                              <Edit size={14} />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteTask(task);
-                              }}
-                            >
-                              <Trash2 size={14} />
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+      <div className="h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-indigo-400/10 to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
-
+        
         {/* Desktop Layout */}
-        <div className="hidden md:block h-full">
+        <div className="h-full relative z-10">
           <PanelGroup direction="horizontal" className="h-full">
             <Panel defaultSize={25} minSize={20} maxSize={40}>
               <div className="h-screen bg-white shadow-lg border-r border-gray-200 flex flex-col">

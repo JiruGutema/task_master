@@ -1,4 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Edit, Trash2 } from "lucide-react";
@@ -26,11 +27,12 @@ export function TaskDetailModal({ open, onOpenChange, task, category, onEdit, on
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[95vw] max-w-lg sm:w-full resize overflow-auto max-h-[90vh] mx-4 bg-white/90 backdrop-blur-md border-0 shadow-2xl rounded-2xl" style={{ minWidth: '300px', minHeight: '350px' }}>
         <DialogHeader>
+          <DialogPrimitive.Close style={{display:'none'}} className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground" />
           <DialogTitle className="flex items-center justify-between">
             <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Task Details</span>
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 ">
               <Button variant="ghost" size="sm" className="hover:bg-blue-100/50 rounded-xl" onClick={() => onEdit(task)}>
-                <Edit size={16} />
+                <Edit size={26} />
               </Button>
               <Button variant="ghost" size="sm" className="hover:bg-red-100/50 rounded-xl" onClick={() => onDelete(task)}>
                 <Trash2 size={16} />

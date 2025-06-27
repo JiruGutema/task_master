@@ -35,6 +35,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (error instanceof z.ZodError) {
         res.status(400).json({ message: "Invalid data", errors: error.errors });
       } else {
+        console.log("error",(error));
+
         res.status(500).json({ message: "Failed to create account" });
       }
     }
@@ -118,6 +120,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (error instanceof z.ZodError) {
         res.status(400).json({ message: "Invalid data", errors: error.errors });
       } else {
+        console.log((error));
         res.status(500).json({ message: "Failed to create category" });
       }
     }
@@ -189,6 +192,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (error instanceof z.ZodError) {
         res.status(400).json({ message: "Invalid data", errors: error.errors });
       } else {
+        console.log((error));
         res.status(500).json({ message: "Failed to create task" });
       }
     }

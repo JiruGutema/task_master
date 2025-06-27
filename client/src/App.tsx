@@ -27,11 +27,21 @@ function App() {
       fetch('/api/auth/me', {
         headers: { Authorization: `Bearer ${token}` }
       })
-      .then(res => res.json())
+      .then(res => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          localStorage.removeItem('token');
+          throw new Error('Invalid token');
+        }
+      })
       .then(data => {
         if (data.user) setUser(data.user);
       })
-      .catch(() => localStorage.removeItem('token'))
+      .catch(() => {
+        localStorage.removeItem('token');
+        setUser(null);
+      })
       .finally(() => setLoading(false));
     } else {
       setLoading(false);
