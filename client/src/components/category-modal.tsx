@@ -12,7 +12,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { insertCategorySchema, type Category } from "@shared/schema";
 import { z } from "zod";
 
-const formSchema = insertCategorySchema;
+const formSchema = insertCategorySchema.omit({ userId: true, description: true });
 
 const colors = [
   { name: "blue", class: "bg-blue-500" },
@@ -112,9 +112,9 @@ export function CategoryModal({ open, onOpenChange, category }: CategoryModalPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-[95vw] max-w-md sm:w-full resize overflow-auto max-h-[90vh] mx-4 bg-white/90 backdrop-blur-md border-0 shadow-2xl rounded-2xl" style={{ minWidth: '280px', minHeight: '250px' }}>
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Category" : "Add New Category"}</DialogTitle>
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{isEditing ? "Edit Category" : "Add New Category"}</DialogTitle>
         </DialogHeader>
         
         <Form {...form}>
@@ -164,14 +164,14 @@ export function CategoryModal({ open, onOpenChange, category }: CategoryModalPro
               <Button
                 type="button"
                 variant="outline"
-                className="flex-1"
+                className="flex-1 border-2 border-gray-200 hover:bg-gray-50 rounded-xl"
                 onClick={() => onOpenChange(false)}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                className="flex-1"
+                className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg rounded-xl"
                 disabled={createMutation.isPending || updateMutation.isPending}
               >
                 {isEditing ? "Update Category" : "Create Category"}

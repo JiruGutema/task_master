@@ -15,23 +15,24 @@ export interface IStorage {
   // User methods
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
 
   // Category methods
-  getCategories(): Promise<Category[]>;
+  getCategoriesByUser(userId: number): Promise<Category[]>;
   getCategory(id: number): Promise<Category | undefined>;
   createCategory(category: InsertCategory): Promise<Category>;
   updateCategory(id: number, category: Partial<InsertCategory>): Promise<Category | undefined>;
   deleteCategory(id: number): Promise<boolean>;
 
   // Task methods
-  getTasks(): Promise<Task[]>;
-  getTasksByCategory(categoryId: number): Promise<Task[]>;
+  getTasksByUser(userId: number): Promise<Task[]>;
+  getTasksByCategoryAndUser(categoryId: number, userId: number): Promise<Task[]>;
   getTask(id: number): Promise<Task | undefined>;
   createTask(task: InsertTask): Promise<Task>;
   updateTask(id: number, task: UpdateTask): Promise<Task | undefined>;
   deleteTask(id: number): Promise<boolean>;
-  searchTasks(query: string): Promise<Task[]>;
+  searchTasksByUser(userId: number, query: string): Promise<Task[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -62,6 +63,12 @@ export class MemStorage implements IStorage {
     );
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(
+      (user) => user.email === email,
+    );
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentUserId++;
     const user: User = { ...insertUser, id };
@@ -70,8 +77,8 @@ export class MemStorage implements IStorage {
   }
 
   // Category methods
-  async getCategories(): Promise<Category[]> {
-    return Array.from(this.categories.values());
+  async getCategoriesByUser(userId: number): Promise<Category[]> {
+    return Array.from(this.categories.values()).filter(cat => cat.userId === userId);
   }
 
   async getCategory(id: number): Promise<Category | undefined> {
@@ -80,7 +87,12 @@ export class MemStorage implements IStorage {
 
   async createCategory(insertCategory: InsertCategory): Promise<Category> {
     const id = this.currentCategoryId++;
-    const category: Category = { ...insertCategory, id };
+    const category: Category = { 
+      ...insertCategory, 
+      id, 
+      color: insertCategory.color ?? "blue",
+      description: insertCategory.description ?? ""
+    };
     this.categories.set(id, category);
     return category;
   }
@@ -108,15 +120,15 @@ export class MemStorage implements IStorage {
   }
 
   // Task methods
-  async getTasks(): Promise<Task[]> {
-    return Array.from(this.tasks.values()).sort((a, b) => 
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+  async getTasksByUser(userId: number): Promise<Task[]> {
+    return Array.from(this.tasks.values())
+      .filter(task => task.userId === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
-  async getTasksByCategory(categoryId: number): Promise<Task[]> {
+  async getTasksByCategoryAndUser(categoryId: number, userId: number): Promise<Task[]> {
     return Array.from(this.tasks.values())
-      .filter(task => task.categoryId === categoryId)
+      .filter(task => task.categoryId === categoryId && task.userId === userId)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
@@ -130,6 +142,9 @@ export class MemStorage implements IStorage {
       ...insertTask, 
       id, 
       completed: false,
+      description: insertTask.description ?? "",
+      priority: insertTask.priority ?? "medium",
+      dueDate: insertTask.dueDate ?? null,
       createdAt: new Date()
     };
     this.tasks.set(id, task);
@@ -149,12 +164,13 @@ export class MemStorage implements IStorage {
     return this.tasks.delete(id);
   }
 
-  async searchTasks(query: string): Promise<Task[]> {
+  async searchTasksByUser(userId: number, query: string): Promise<Task[]> {
     const lowerQuery = query.toLowerCase();
     return Array.from(this.tasks.values())
       .filter(task => 
-        task.title.toLowerCase().includes(lowerQuery) ||
-        task.description.toLowerCase().includes(lowerQuery)
+        task.userId === userId &&
+        (task.title.toLowerCase().includes(lowerQuery) ||
+        task.description.toLowerCase().includes(lowerQuery))
       )
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }

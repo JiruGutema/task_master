@@ -80,7 +80,6 @@ The application uses two main entities:
 ### Production Build
 - **Frontend Build**: Vite builds React app to static assets
 - **Backend Build**: esbuild bundles server code for production
-- **Deployment Target**: Autoscale deployment on Replit
 - **Asset Serving**: Express serves static files in production
 
 ### Configuration

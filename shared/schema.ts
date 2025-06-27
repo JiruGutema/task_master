@@ -6,6 +6,8 @@ export const categories = pgTable("categories", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   color: text("color").notNull().default("blue"),
+  description: text("description").default(""),
+  userId: integer("user_id").notNull(),
 });
 
 export const tasks = pgTable("tasks", {
@@ -17,11 +19,16 @@ export const tasks = pgTable("tasks", {
   priority: text("priority").notNull().default("medium"), // low, medium, high
   dueDate: text("due_date"), // ISO string format
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  userId: integer("user_id").notNull(),
 });
 
 export const insertCategorySchema = createInsertSchema(categories).pick({
   name: true,
   color: true,
+  description: true,
+  userId: true,
+}).extend({
+  description: z.string().optional(),
 });
 
 export const insertTaskSchema = createInsertSchema(tasks).pick({
@@ -30,6 +37,7 @@ export const insertTaskSchema = createInsertSchema(tasks).pick({
   categoryId: true,
   priority: true,
   dueDate: true,
+  userId: true,
 });
 
 export const updateTaskSchema = insertTaskSchema.partial().extend({
@@ -45,12 +53,21 @@ export type Task = typeof tasks.$inferSelect;
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
+  email: text("email").notNull().unique(),
+  fullname: text("fullname").notNull(),
   password: text("password").notNull(),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
+  email: true,
+  fullname: true,
   password: true,
+});
+
+export const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

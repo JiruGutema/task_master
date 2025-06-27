@@ -13,11 +13,11 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { insertTaskSchema, updateTaskSchema, type Task, type Category } from "@shared/schema";
 import { z } from "zod";
 
-const createFormSchema = insertTaskSchema.extend({
+const createFormSchema = insertTaskSchema.omit({ userId: true }).extend({
   dueDate: z.string().optional(),
 });
 
-const updateFormSchema = updateTaskSchema.extend({
+const updateFormSchema = updateTaskSchema.omit({ userId: true }).extend({
   dueDate: z.string().optional(),
 });
 
@@ -165,13 +165,13 @@ export function TaskModal({ open, onOpenChange, task, categories, defaultCategor
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="w-[95vw] max-w-lg sm:w-full resize overflow-auto max-h-[90vh] mx-4 bg-white/90 backdrop-blur-md border-0 shadow-2xl rounded-2xl" style={{ minWidth: '300px', minHeight: '400px' }}>
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Task" : "Add New Task"}</DialogTitle>
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{isEditing ? "Edit Task" : "Add New Task"}</DialogTitle>
         </DialogHeader>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4 overflow-y-auto flex-1">
             <FormField
               control={form.control}
               name="title"
@@ -285,14 +285,14 @@ export function TaskModal({ open, onOpenChange, task, categories, defaultCategor
               <Button
                 type="button"
                 variant="outline"
-                className="flex-1"
+                className="flex-1 border-2 border-gray-200 hover:bg-gray-50 rounded-xl"
                 onClick={() => onOpenChange(false)}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                className="flex-1"
+                className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg rounded-xl"
                 disabled={createMutation.isPending || updateMutation.isPending}
               >
                 {isEditing ? "Update Task" : "Create Task"}
